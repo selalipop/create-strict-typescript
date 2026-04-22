@@ -222,7 +222,7 @@ function mergePackageJson(projectDir: string, opts: CoreOptions, result: ApplyRe
     coreDevDeps["lint-staged"] = "^16.2.7";
   }
   if (opts.knip) {
-    coreDevDeps.knip = "^5.73.4";
+    coreDevDeps.knip = "^6.6.1";
   }
   if (opts.tsgolint) {
     coreDevDeps["oxlint-tsgolint"] = "^0.21.1";

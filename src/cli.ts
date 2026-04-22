@@ -7,7 +7,7 @@ import { promptExtras, runScaffold } from "./modes/scaffold.ts";
 import type { PackageManager } from "./templates/types.ts";
 import { detectPackageManager } from "./util/detect.ts";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.1";
 
 const HELP = `
   create-strict-typescript ${pc.dim(`v${VERSION}`)}

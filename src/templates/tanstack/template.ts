@@ -98,7 +98,7 @@ export const tanstackTemplate: Template = {
       deps["@capacitor/core"] = "^8.3.1";
       deps["@capacitor/ios"] = "^8.3.1";
       deps["@capacitor/android"] = "^8.3.1";
-      deps["@capacitor/app"] = "^8.3.1";
+      deps["@capacitor/app"] = "^8.1.0";
       devDeps["@capacitor/cli"] = "^8.3.1";
       scripts["build:spa"] = "VITE_SPA_MODE=true vite build";
       scripts["cap:sync:ios"] = "pnpm build:spa && cap sync ios";
