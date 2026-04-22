@@ -1,0 +1,22 @@
+node_modules
+dist
+.output
+.vinxi
+.tanstack
+.next
+.vercel
+coverage
+*.tsbuildinfo
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+src/routeTree.gen.ts
+
+# Capacitor
+ios/App/App/public
+ios/App/Podfile.lock
+android/app/build
+android/.gradle
+android/local.properties

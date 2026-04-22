@@ -1,0 +1,20 @@
+{
+  "name": "{{name}}",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "bin": {
+    "{{name}}": "./dist/cli.mjs"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch"
+  },
+  "dependencies": {
+    "citty": "^0.2.2"
+  },
+  "devDependencies": {
+    "tsdown": "^0.21.9"
+  }
+}

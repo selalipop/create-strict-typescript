@@ -1,0 +1,21 @@
+{
+  "name": "{{name}}",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "bin": {
+    "{{name}}": "./src/cli.ts"
+  },
+  "files": ["src", "dist"],
+  "scripts": {
+    "start": "bun run src/cli.ts",
+    "build": "bun build src/cli.ts --outdir dist --target bun",
+    "build:compile": "bun build src/cli.ts --compile --outfile dist/{{name}}"
+  },
+  "dependencies": {
+    "citty": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

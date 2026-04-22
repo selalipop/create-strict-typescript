@@ -1,0 +1,33 @@
+{
+  "name": "{{name}}",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "start": "node .output/server/index.mjs",
+    "routes:generate": "tsr generate"
+  },
+  "dependencies": {
+    "@orpc/client": "^1.13.14",
+    "@orpc/server": "^1.13.14",
+    "@orpc/tanstack-query": "^1.13.14",
+    "@tanstack/react-query": "^5.99.2",
+    "@tanstack/react-router": "^1.168.23",
+    "@tanstack/react-start": "^1.167.42",
+    "nitro": "3.0.260415-beta",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/router-cli": "^1.166.33",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.1.2",
+    "tailwindcss": "^4.1.18",
+    "vite": "^8.0.0"
+  }
+}

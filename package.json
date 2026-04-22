@@ -1,0 +1,64 @@
+{
+  "name": "create-strict-typescript",
+  "version": "0.1.0",
+  "description": "Curated starter toolkit with a strict TypeScript baseline (Biome + Oxlint + tsgo). Ships lib, CLI (Node & Bun), and TanStack Start + oRPC templates.",
+  "keywords": [
+    "create",
+    "scaffold",
+    "template",
+    "typescript",
+    "strict",
+    "biome",
+    "oxlint",
+    "tsgo",
+    "tanstack",
+    "orpc",
+    "bun",
+    "cli"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-strict-typescript": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist",
+    "src/core/files",
+    "src/templates/*/files",
+    "src/templates/*/features",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "lint:biome": "biome check .",
+    "lint:oxc": "oxlint . --disable-unicorn-plugin --max-warnings=0",
+    "lint": "pnpm lint:biome && pnpm lint:oxc && pnpm typecheck",
+    "fix": "biome check --write . && oxlint . --disable-unicorn-plugin --fix",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.2.0",
+    "comment-json": "^5.0.0",
+    "package-manager-detector": "^1.6.0",
+    "picocolors": "^1.1.1",
+    "yocto-spinner": "^1.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.12",
+    "@types/node": "^22.10.0",
+    "oxlint": "^1.61.0",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
