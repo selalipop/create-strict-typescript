@@ -22,10 +22,8 @@
     "create-strict-typescript": "./dist/cli.mjs"
   },
   "files": [
-    "dist",
-    "src/core/files",
-    "src/templates/*/files",
-    "src/templates/*/features",
+    "dist/**",
+    "src/templates/**",
     "README.md",
     "LICENSE"
   ],
