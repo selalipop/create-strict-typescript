@@ -1,9 +1,10 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { confirm, isCancel, log, multiselect, note, outro, tasks } from "@clack/prompts";
 import pc from "picocolors";
 import { applyCoreBaseline, colorize } from "../core/apply.ts";
 import type { PackageManager } from "../templates/types.ts";
+import { generateAgentsMd } from "../util/agents-md.ts";
 import { inspectHostProject } from "../util/detect.ts";
 import { runBiomeFormat, runInstall } from "../util/install.ts";
 
@@ -62,6 +63,29 @@ export async function runInit(opts: InitOptions): Promise<void> {
           note(diff, "changes");
         }
         return "baseline layered";
+      },
+    },
+    {
+      title: "Generate AGENTS.md + CLAUDE.md",
+      task: async () => {
+        const pkgPath = join(dir, "package.json");
+        let projectName = "project";
+        if (existsSync(pkgPath)) {
+          try {
+            const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as { name?: string };
+            if (pkg.name) {
+              projectName = pkg.name;
+            }
+          } catch {
+            // ignore
+          }
+        }
+        generateAgentsMd(dir, {
+          projectName,
+          templateId: "init",
+          packageManager: opts.pm,
+        });
+        return "agent guidance written";
       },
     },
     ...(opts.install

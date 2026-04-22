@@ -26,7 +26,9 @@ import pc from "picocolors";
 import { applyCoreBaseline, colorize } from "../core/apply.ts";
 import { getTemplate, templates } from "../templates/registry.ts";
 import type { PackageManager, Template, TemplatePrompt } from "../templates/types.ts";
+import { generateAgentsMd } from "../util/agents-md.ts";
 import { runBiomeFormat, runInstall, runTsrGenerate } from "../util/install.ts";
+import { featureSkillsDir, templateSkillsDir } from "../util/paths.ts";
 import { renderTemplate, sanitizePackageName } from "../util/tpl.ts";
 
 export interface ScaffoldOptions {
@@ -64,6 +66,7 @@ export async function runScaffold(opts: ScaffoldOptions): Promise<void> {
           name: pkgName,
           pm: opts.pm,
         });
+        copyTemplateAndFeatureSkills(template, flags, absoluteDir);
         return `${template.id} template copied`;
       },
     },
@@ -102,6 +105,17 @@ export async function runScaffold(opts: ScaffoldOptions): Promise<void> {
           },
         ]
       : []),
+    {
+      title: "Generate AGENTS.md + CLAUDE.md",
+      task: async () => {
+        generateAgentsMd(absoluteDir, {
+          projectName: sanitizePackageName(basename(absoluteDir)),
+          templateId: template.id,
+          packageManager: opts.pm,
+        });
+        return "agent guidance written";
+      },
+    },
     ...(opts.install
       ? [
           {
@@ -362,6 +376,38 @@ function applyFeatureOverlays(
     }
   }
   postCopy(projectDir, vars);
+}
+
+function copyTemplateAndFeatureSkills(
+  template: Template,
+  flags: Record<string, unknown>,
+  projectDir: string,
+): void {
+  const skillsTarget = join(projectDir, ".claude", "skills");
+  const templateSkills = templateSkillsDir(template.id);
+  if (existsSync(templateSkills)) {
+    mkdirSync(skillsTarget, { recursive: true });
+    cpSync(templateSkills, skillsTarget, { recursive: true, force: true });
+  }
+  for (const [flagKey, flagValue] of Object.entries(flags)) {
+    const values = Array.isArray(flagValue) ? flagValue.map(String) : [String(flagValue)];
+    for (const v of values) {
+      const lookupKey = `${flagKey}:${v}`;
+      const overlayPath = template.featureDirs?.[lookupKey] ?? template.featureDirs?.[v];
+      if (!overlayPath) {
+        continue;
+      }
+      const featureName = overlayPath.split("/").pop();
+      if (featureName === undefined) {
+        continue;
+      }
+      const fSkills = featureSkillsDir(template.id, featureName);
+      if (existsSync(fSkills)) {
+        mkdirSync(skillsTarget, { recursive: true });
+        cpSync(fSkills, skillsTarget, { recursive: true, force: true });
+      }
+    }
+  }
 }
 
 function postCopy(projectDir: string, vars: { name: string; pm: PackageManager }): void {

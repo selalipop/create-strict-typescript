@@ -1,6 +1,6 @@
 # create-strict-typescript
 
-Curated starter toolkit with a strict TypeScript baseline (Biome + Oxlint + tsgo), plus opinionated templates for full-stack apps, CLIs, and libraries.
+Curated starter toolkit with a strict TypeScript baseline (Biome + Oxlint + tsgo), plus opinionated templates for full-stack apps, CLIs, and libraries — and per-feature agent guidance that ships inside every scaffolded project.
 
 ## Thesis
 
@@ -95,6 +95,30 @@ Full set of compiler options added:
 ```
 
 Framework-specific settings (`jsx`, `lib`, `moduleResolution`, `paths`, `target`, `module`, `types`) are preserved when they already exist — only the strict-level flags are layered on.
+
+## Agent guidance (skills)
+
+Every generated project ships with focused [Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) under `.claude/skills/` — one topic per file, auto-discovered by **Claude Code, OpenAI Codex CLI, Cursor, Gemini CLI, and GitHub Copilot** (they share the Agent Skills open standard). An `AGENTS.md` is also generated at the root following the [AGENTS.md](https://agents.md/) convention used by Windsurf, Amp, Devin, and others.
+
+Which skills ship depends on what you scaffolded:
+
+| Skill | Shipped when |
+|---|---|
+| `strict-typescript` | always (idiomatic fixes for `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, etc.) |
+| `lint-stack` | always (which tool catches what; when to run `fix` vs `fixunsafe`) |
+| `pre-commit` | `--husky` (default) — hook mechanics + when `--no-verify` is acceptable |
+| `tanstack-start` | tanstack template (file-based routing, loader vs server-fn vs oRPC) |
+| `orpc-patterns` | tanstack template (adding a procedure, React Query bindings) |
+| `auth-seam` | `--auth=placeholder` (the single-file seam for swapping providers) |
+| `supabase-auth` | `--auth=supabase` (cookie adapter, PKCE callback, env vars) |
+| `ui-daisyui` | `--ui=daisyui` (theme switching, class conventions) |
+| `heroui-ssr` | `--ui=heroui` (SSR noExternal invariant, Provider wrap) |
+| `drizzle-workflow` | `--db=drizzle` (schema → generate → push vs migrate; `db:studio`) |
+| `capacitor-build` | `--capacitor` (`webDir` invariant, `VITE_SPA_MODE` toggle, safe-area CSS) |
+| `citty-commands` | cli-node / cli-bun (subcommand tree, arg types) |
+| `lib-publishing` | lib (exports shape, pre-publish checklist) |
+
+When an LLM opens the scaffolded project later, it sees the exact conventions you picked — no guessing at how oRPC is wired, where the auth seam is, or why `vite.config.ts` has SSR externals pinned.
 
 ## Templates
 

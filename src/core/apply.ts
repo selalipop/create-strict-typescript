@@ -1,8 +1,9 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { parse, stringify } from "comment-json";
 import pc from "picocolors";
 import type { PackageManager } from "../templates/types.ts";
+import { coreSkillsDir } from "../util/paths.ts";
 import { STRICT_COMPILER_OPTIONS } from "./strict-tsconfig.ts";
 
 export interface CoreOptions {
@@ -35,9 +36,36 @@ export async function applyCoreBaseline(
   if (opts.husky) {
     writeHuskyHook(projectDir, opts.pm, result);
   }
+  copyBaselineSkills(projectDir, opts.husky, result);
   mergePackageJson(projectDir, opts, result);
 
   return result;
+}
+
+function copyBaselineSkills(
+  projectDir: string,
+  includePreCommit: boolean,
+  result: ApplyResult,
+): void {
+  const source = coreSkillsDir();
+  if (!existsSync(source)) {
+    return;
+  }
+  const target = join(projectDir, ".claude", "skills");
+  mkdirSync(target, { recursive: true });
+  for (const skillName of readdirSync(source)) {
+    if (skillName === "pre-commit" && !includePreCommit) {
+      continue;
+    }
+    const sourceSkill = join(source, skillName);
+    const targetSkill = join(target, skillName);
+    if (existsSync(targetSkill)) {
+      result.warnings.push(`.claude/skills/${skillName} already exists — skipped`);
+      continue;
+    }
+    cpSync(sourceSkill, targetSkill, { recursive: true });
+    result.changes.push(`wrote .claude/skills/${skillName}/SKILL.md`);
+  }
 }
 
 function mergeStrictTsconfig(projectDir: string, result: ApplyResult): void {

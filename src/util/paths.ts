@@ -39,3 +39,15 @@ export function templateFilesDir(templateId: string): string {
 export function templateFeatureDir(templateId: string, featureName: string): string {
   return join(packageRoot(), "src", "templates", templateId, "features", featureName);
 }
+
+export function coreSkillsDir(): string {
+  return join(packageRoot(), "src", "core", "skills");
+}
+
+export function templateSkillsDir(templateId: string): string {
+  return join(packageRoot(), "src", "templates", templateId, "skills");
+}
+
+export function featureSkillsDir(templateId: string, featureName: string): string {
+  return join(packageRoot(), "src", "templates", templateId, "features", featureName, "skills");
+}

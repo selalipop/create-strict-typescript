@@ -1,6 +1,6 @@
 {
   "name": "create-strict-typescript",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Curated starter toolkit with a strict TypeScript baseline (Biome + Oxlint + tsgo). Ships lib, CLI (Node & Bun), and TanStack Start + oRPC templates.",
   "keywords": [
     "create",
@@ -23,6 +23,7 @@
   },
   "files": [
     "dist/**",
+    "src/core/skills/**",
     "src/templates/**",
     "README.md",
     "LICENSE"
