@@ -113,7 +113,6 @@ export const tanstackTemplate: Template = {
     writeFileSync(pkgPath, `${stringify(pkg, null, 2)}\n`);
 
     if (ui === "heroui") {
-      wrapRootWithHeroUI(ctx.projectDir);
       addHeroUISsrExternals(ctx.projectDir);
     }
     if (ui === "daisyui" || ui === "heroui") {
@@ -122,7 +121,7 @@ export const tanstackTemplate: Template = {
   },
 };
 
-function wrapRootWithHeroUI(projectDir: string): void {
+function _wrapRootWithHeroUI(projectDir: string): void {
   const path = join(projectDir, "src", "routes", "__root.tsx");
   let content = readFileSync(path, "utf8");
   if (content.includes("HeroUIProvider")) {

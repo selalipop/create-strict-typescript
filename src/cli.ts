@@ -7,7 +7,7 @@ import { promptExtras, runScaffold } from "./modes/scaffold.ts";
 import type { PackageManager } from "./templates/types.ts";
 import { detectPackageManager } from "./util/detect.ts";
 
-const VERSION = "0.2.1";
+const VERSION = "0.3.0";
 
 const HELP = `
   create-strict-typescript ${pc.dim(`v${VERSION}`)}
@@ -44,26 +44,60 @@ interface ParsedArgs {
   tsgo: boolean;
   help: boolean;
   version: boolean;
+  promptOverrides: Record<string, string | boolean>;
 }
 
 const NEGATABLE = new Set(["install", "husky", "knip", "tsgolint", "tsgo"]);
+const KNOWN_FLAGS = new Set([
+  "template",
+  "init",
+  "pm",
+  "yes",
+  "y",
+  "install",
+  "husky",
+  "knip",
+  "tsgolint",
+  "tsgo",
+  "help",
+  "h",
+  "version",
+  "v",
+]);
 
-function preprocessArgv(argv: string[]): { args: string[]; overrides: Record<string, boolean> } {
+function preprocessArgv(argv: string[]): {
+  args: string[];
+  overrides: Record<string, boolean>;
+  promptOverrides: Record<string, string | boolean>;
+} {
   const overrides: Record<string, boolean> = {};
+  const promptOverrides: Record<string, string | boolean> = {};
   const filtered: string[] = [];
   for (const token of argv) {
-    const match = /^--no-([a-zA-Z-]+)$/.exec(token);
-    if (match && match[1] !== undefined && NEGATABLE.has(match[1])) {
-      overrides[match[1]] = false;
+    const noMatch = /^--no-([a-zA-Z-]+)$/.exec(token);
+    if (noMatch && noMatch[1] !== undefined) {
+      if (NEGATABLE.has(noMatch[1])) {
+        overrides[noMatch[1]] = false;
+      } else {
+        promptOverrides[noMatch[1]] = false;
+      }
       continue;
+    }
+    const kvMatch = /^--([a-zA-Z][a-zA-Z0-9-]*)=(.+)$/.exec(token);
+    if (kvMatch && kvMatch[1] !== undefined && kvMatch[2] !== undefined) {
+      if (!KNOWN_FLAGS.has(kvMatch[1])) {
+        const value = kvMatch[2];
+        promptOverrides[kvMatch[1]] = value === "true" ? true : value === "false" ? false : value;
+        continue;
+      }
     }
     filtered.push(token);
   }
-  return { args: filtered, overrides };
+  return { args: filtered, overrides, promptOverrides };
 }
 
 function parse(): ParsedArgs {
-  const { args, overrides } = preprocessArgv(process.argv.slice(2));
+  const { args, overrides, promptOverrides } = preprocessArgv(process.argv.slice(2));
   const { values, positionals } = parseArgs({
     args,
     allowPositionals: true,
@@ -97,6 +131,7 @@ function parse(): ParsedArgs {
     tsgo: bool("tsgo", values.tsgo !== false),
     help: values.help === true,
     version: values.version === true,
+    promptOverrides,
   };
 }
 
@@ -183,6 +218,7 @@ async function main(): Promise<void> {
     pm,
     yes: args.yes,
     install: args.install,
+    promptOverrides: args.promptOverrides,
     ...extras,
   });
 }

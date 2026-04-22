@@ -24,7 +24,7 @@ export const authService = {
           Object.entries(cookieAdapter.getAll()).map(([name, value]) => ({ name, value })),
         setAll: (cookies) => {
           for (const { name, value, options } of cookies) {
-            cookieAdapter.set(name, value, options ?? {});
+            cookieAdapter.set(name, value, options);
           }
         },
       },

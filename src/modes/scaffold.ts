@@ -41,6 +41,7 @@ export interface ScaffoldOptions {
   knip: boolean;
   tsgolint: boolean;
   tsgo: boolean;
+  promptOverrides: Record<string, string | boolean>;
 }
 
 export async function runScaffold(opts: ScaffoldOptions): Promise<void> {
@@ -49,7 +50,7 @@ export async function runScaffold(opts: ScaffoldOptions): Promise<void> {
   assertFreshTarget(absoluteDir);
 
   const template = await resolveTemplate(opts.templateId, opts.yes);
-  const flags = await collectPromptAnswers(template, opts.yes);
+  const flags = await collectPromptAnswers(template, opts.yes, opts.promptOverrides);
 
   log.info(`${pc.dim("using")} ${pc.cyan(opts.pm)}`);
 
@@ -271,19 +272,27 @@ async function resolveTemplate(templateId: string | undefined, yes: boolean): Pr
 async function collectPromptAnswers(
   template: Template,
   yes: boolean,
+  overrides: Record<string, string | boolean>,
 ): Promise<Record<string, unknown>> {
   if (!template.prompts || template.prompts.length === 0) {
     return {};
   }
-  if (yes) {
-    const result: Record<string, unknown> = {};
-    for (const p of template.prompts) {
-      result[p.key] = p.initialValue ?? defaultAnswer(p);
+  const resolved: Record<string, unknown> = {};
+  const remaining: TemplatePrompt[] = [];
+  for (const p of template.prompts) {
+    if (p.key in overrides) {
+      resolved[p.key] = overrides[p.key];
+    } else if (yes) {
+      resolved[p.key] = p.initialValue ?? defaultAnswer(p);
+    } else {
+      remaining.push(p);
     }
-    return result;
+  }
+  if (remaining.length === 0) {
+    return resolved;
   }
   const steps: Record<string, () => Promise<unknown>> = {};
-  for (const prompt of template.prompts) {
+  for (const prompt of remaining) {
     steps[prompt.key] = () => runPrompt(prompt);
   }
   const answers = await group(steps, {
@@ -292,7 +301,7 @@ async function collectPromptAnswers(
       process.exit(0);
     },
   });
-  return answers;
+  return { ...resolved, ...answers };
 }
 
 function defaultAnswer(p: TemplatePrompt): unknown {

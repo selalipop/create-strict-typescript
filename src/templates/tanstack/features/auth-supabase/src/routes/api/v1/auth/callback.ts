@@ -26,7 +26,7 @@ export const Route = createFileRoute("/api/v1/auth/callback")({
               setAll: (cookies) => {
                 for (const { name, value, options } of cookies) {
                   if (value) {
-                    setCookie(name, value, options ?? {});
+                    setCookie(name, value, options);
                   } else {
                     deleteCookie(name);
                   }

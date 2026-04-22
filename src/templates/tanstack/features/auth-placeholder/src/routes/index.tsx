@@ -10,6 +10,10 @@ function HomePage() {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
 
+  const meQuery = useQuery({
+    ...orpc.me.queryOptions(),
+    retry: false,
+  });
   const thingsQuery = useQuery(orpc.things.list.queryOptions());
   const createThing = useMutation({
     ...orpc.things.create.mutationOptions(),
@@ -24,19 +28,18 @@ function HomePage() {
     },
   });
 
+  const user = meQuery.data?.user;
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <Nav projectName="{{name}}" />
+      <Nav projectName="{{name}}" user={user} />
       <main className="mx-auto max-w-3xl space-y-10 p-8">
         <section>
           <h1 className="text-4xl font-bold tracking-tight">Welcome to {{name}}</h1>
           <p className="mt-3 max-w-prose text-slate-600">
-            TanStack Start + oRPC + a strict TypeScript baseline. This homepage is wired
-            end-to-end: the list below is fetched through <code className="rounded bg-slate-100 px-1">
-              orpc.things.list
-            </code>, and the form below calls <code className="rounded bg-slate-100 px-1">
-              orpc.things.create
-            </code>.
+            TanStack Start + oRPC + a strict TypeScript baseline. Auth is wired through the
+            <code className="mx-1 rounded bg-slate-100 px-1">authService</code> seam — see the{" "}
+            <code className="rounded bg-slate-100 px-1">auth-seam</code> skill to swap providers.
           </p>
           <p className="mt-2 text-sm text-slate-500">
             Edit <code className="rounded bg-slate-100 px-1">src/routes/index.tsx</code> to make it yours.
@@ -98,14 +101,6 @@ function HomePage() {
           ) : (
             <p className="text-slate-500">No things yet — add one above.</p>
           )}
-        </section>
-
-        <section className="text-sm text-slate-500">
-          <p>
-            Agent guidance lives in <code className="rounded bg-slate-100 px-1">.claude/skills/</code>{" "}
-            and <code className="rounded bg-slate-100 px-1">AGENTS.md</code>. Start there when an LLM
-            joins you in this project.
-          </p>
         </section>
       </main>
     </div>

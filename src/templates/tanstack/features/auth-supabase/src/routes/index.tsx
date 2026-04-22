@@ -10,6 +10,10 @@ function HomePage() {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
 
+  const meQuery = useQuery({
+    ...orpc.me.queryOptions(),
+    retry: false,
+  });
   const thingsQuery = useQuery(orpc.things.list.queryOptions());
   const createThing = useMutation({
     ...orpc.things.create.mutationOptions(),
@@ -24,19 +28,18 @@ function HomePage() {
     },
   });
 
+  const user = meQuery.data?.user;
+  const canMutate = user !== undefined;
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <Nav projectName="{{name}}" />
+      <Nav projectName="{{name}}" user={user} />
       <main className="mx-auto max-w-3xl space-y-10 p-8">
         <section>
           <h1 className="text-4xl font-bold tracking-tight">Welcome to {{name}}</h1>
           <p className="mt-3 max-w-prose text-slate-600">
-            TanStack Start + oRPC + a strict TypeScript baseline. This homepage is wired
-            end-to-end: the list below is fetched through <code className="rounded bg-slate-100 px-1">
-              orpc.things.list
-            </code>, and the form below calls <code className="rounded bg-slate-100 px-1">
-              orpc.things.create
-            </code>.
+            TanStack Start + oRPC + Supabase auth + strict TypeScript. The list below is public; to
+            add or delete things, <a href="/auth/login" className="text-slate-900 underline">sign in</a>.
           </p>
           <p className="mt-2 text-sm text-slate-500">
             Edit <code className="rounded bg-slate-100 px-1">src/routes/index.tsx</code> to make it yours.
@@ -61,13 +64,14 @@ function HomePage() {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Add a thing…"
-              className="flex-1 rounded border border-slate-300 px-3 py-2 focus:border-slate-900 focus:outline-none"
+              placeholder={canMutate ? "Add a thing…" : "Sign in to add things"}
+              className="flex-1 rounded border border-slate-300 px-3 py-2 focus:border-slate-900 focus:outline-none disabled:bg-slate-100"
               maxLength={120}
+              disabled={!canMutate}
             />
             <button
               type="submit"
-              disabled={title.trim().length === 0 || createThing.isPending}
+              disabled={!canMutate || title.trim().length === 0 || createThing.isPending}
               className="rounded bg-slate-900 px-4 py-2 text-white hover:bg-slate-800 disabled:opacity-50"
             >
               Add
@@ -84,28 +88,22 @@ function HomePage() {
                   className="flex items-center justify-between rounded border border-slate-200 bg-white p-3"
                 >
                   <span>{thing.title}</span>
-                  <button
-                    type="button"
-                    onClick={() => deleteThing.mutate({ id: thing.id })}
-                    className="text-sm text-rose-600 hover:underline disabled:opacity-50"
-                    disabled={deleteThing.isPending}
-                  >
-                    delete
-                  </button>
+                  {canMutate && (
+                    <button
+                      type="button"
+                      onClick={() => deleteThing.mutate({ id: thing.id })}
+                      className="text-sm text-rose-600 hover:underline disabled:opacity-50"
+                      disabled={deleteThing.isPending}
+                    >
+                      delete
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-slate-500">No things yet — add one above.</p>
+            <p className="text-slate-500">No things yet.</p>
           )}
-        </section>
-
-        <section className="text-sm text-slate-500">
-          <p>
-            Agent guidance lives in <code className="rounded bg-slate-100 px-1">.claude/skills/</code>{" "}
-            and <code className="rounded bg-slate-100 px-1">AGENTS.md</code>. Start there when an LLM
-            joins you in this project.
-          </p>
         </section>
       </main>
     </div>
