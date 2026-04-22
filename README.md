@@ -2,6 +2,44 @@
 
 Curated starter toolkit with a strict TypeScript baseline (Biome + Oxlint + tsgo), plus opinionated templates for full-stack apps, CLIs, and libraries.
 
+## Thesis
+
+> **Ambiguity is the tax you pay on every line of code that hasn't been written yet.**
+
+The faster a bad idea turns into a red squiggle, the less time is spent running it, reviewing it, committing it, and shipping it. That matters for humans and it matters even more for agents — LLMs navigate a codebase by treating type errors, lint errors, and failed tests as the ground-truth signal. If the type system is permissive, an agent will cheerfully produce code that compiles but is wrong; if the type system is strict, the same agent self-corrects inside one loop. Constrain the search space and quality goes up — for both parties at the keyboard.
+
+This starter bakes in the strictest settings we've found that still compose across real projects. The defaults below are enabled everywhere — template or init, frontend or backend.
+
+- **`noUncheckedIndexedAccess`** — `arr[0]` is `T | undefined`, not `T`. No silent `undefined.foo()` at runtime.
+- **`exactOptionalPropertyTypes`** — `{ x?: string }` means the key can be *absent*, not present-and-undefined. Catches the surprising case where `obj.x = undefined` changes behavior.
+- **`useUnknownInCatchVariables`** — `catch (err)` binds `err` as `unknown`. You *must* narrow before touching it.
+- **`noImplicitReturns` + `noFallthroughCasesInSwitch`** — every branch either returns or breaks; no accidental fall-through.
+- **`verbatimModuleSyntax`** (in CLI/lib templates) — you write `import type { T }` when you mean it. No runtime/type drift.
+- **`isolatedModules`** — every file must be a module. Required for transpile-only toolchains (swc, esbuild, tsgo).
+- **Oxlint `typescript/no-unnecessary-condition`** — kills impossible branches (`if (x)` when `x` is `never` nullable).
+- **Oxlint `typescript/restrict-plus-operands`** + **`restrict-template-expressions`** — no accidental coercion of objects to `[object Object]` in strings or addition.
+- **Oxlint `eslint/no-unused-vars`** with `_` escape hatch — unused symbols fail, but deliberate drops (`const [_, x] = pair`) opt out.
+- **Biome `style/useBlockStatements`** — `if (x) doThing();` is rejected, you write braces. Consistent diff shapes, fewer merge conflicts, no dangling-else traps.
+- **lint-staged + husky pre-commit** — every staged file is formatted + lint-fixed on commit. Nothing broken lands.
+
+### A concrete example
+
+```ts
+// Without the baseline:
+function getFirst(items: string[]): string {
+  return items[0];        // ← returns `string`, compiles, blows up at runtime if empty
+}
+getFirst([]).toUpperCase();
+
+// With the baseline (noUncheckedIndexedAccess):
+function getFirst(items: string[]): string {
+  return items[0];        // ← TS error: Type 'string | undefined' is not assignable to 'string'
+}
+// You're forced to handle the empty case — at the keyboard, not in prod.
+```
+
+The philosophy: **prefer failing fast at the keyboard over writing code that "works until it doesn't".** An LLM (or teammate) reading this codebase can't accidentally trust a value that the type system hasn't proved. That's the whole point.
+
 ## Quick start
 
 ```sh
